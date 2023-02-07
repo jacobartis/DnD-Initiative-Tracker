@@ -67,7 +67,15 @@ def display_info_window(selection):
 
     skills_table = sg.Table(skills_table_values,["Name","Value"],num_rows=10,expand_x=True,expand_y=True, justification="center", enable_click_events=True)
 
-    info_window = sg.Window("Stats",[[sg.Text("{} Stats".format(selection_stats["Name"]))],[stats_table,skills_table]], size=(500,500))
+    pasives_table_values = []
+    for x in selection_stats["Pasive Stats"]:
+        pasives_table_values.append([x.replace("'",""),selection_stats["Pasive Stats"][x]])
+
+    pasives_table_values = sg.Table(pasives_table_values,["Name","Value"],num_rows=10,expand_x=True,expand_y=True, justification="center", enable_click_events=True)
+
+    other_stats = sg.Frame("Other", [[sg.Text("Initiative: {}".format(selection_stats["Initiative"]))],[sg.Text("AC: {}".format(selection_stats["AC"]))],[sg.Text("Speed: {}".format(selection_stats["Speed"]))]])
+
+    info_window = sg.Window("Stats",[[sg.Text("{} Stats".format(selection_stats["Name"]))],[stats_table,skills_table,pasives_table_values,other_stats]], size=(1000,250))
     info_window.read()
 
     
@@ -76,7 +84,7 @@ layout = [  [title],
             [initiative_table],
             [add_button,delete_button,check_button,change_button] ]
 
-window = sg.Window('Initiative Tracker', layout=layout, size=(1000,800) )
+window = sg.Window('Initiative Tracker', layout=layout, size=(1000,500) )
 
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
