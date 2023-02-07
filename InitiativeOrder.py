@@ -14,7 +14,12 @@ entry_stats = []
 #Adds a charater to the table
 def add_char_sheet(file_path):
     current = initiative_table.get()
-    id = len(current)
+
+    id = 0
+    for x in current:
+        if x[0] == id:
+            id += 1
+    
     current.append([id,StatHandler.get_char_from_pdf(file_path)["Name"],0])
     initiative_table.update(current)
 
@@ -33,13 +38,19 @@ def change_initative(roll):
     current.sort(reverse=True,key=get_initiative)
     initiative_table.update(current)
 
+#Removes entries from both initative table and entry stats
+def delete_entry(confirm):
+    if confirm == "No":
+        return
+    selection = initiative_table.SelectedRows[0]
+    current = initiative_table.get()
+    selection_id = current[selection][0]
 
-#def add_character(name:int):
-#    window.extend_layout([[sg.Text(name),sg.Input(size=(3,1), pad=(0,0))]],[[1]])
+    current.pop(selection)
+    entry_stats.pop(selection_id)
 
+    initiative_table.update(current)
 
-#add_character("epic")
-#add_character("steve")
 
 layout = [  [title],
             [initiative_table],
@@ -52,6 +63,7 @@ while True:
     event, values = window.read()
     if event == sg.WIN_CLOSED or event == 'Cancel': # if user closes window or clicks cancel
         break
+
     if event == "Add":
         try:
             add_char_sheet(sg.popup_get_file("Please select a character sheet pdf."))
@@ -59,6 +71,12 @@ while True:
             sg.popup_error("Something went wrong",title="Oops")
             print("error: ",e)
     
+    if event == "Delete":
+        try:
+            delete_entry(sg.popup_yes_no("Are you sure you want to delete {}?".format(initiative_table.get()[initiative_table.SelectedRows[0]][1])))
+        except Exception as e:
+            print("Error : ", e)
+
     if event == "Change":
         try:
             change_initative(sg.popup_get_text("Please type the roll"))
