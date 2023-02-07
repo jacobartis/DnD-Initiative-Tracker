@@ -7,6 +7,7 @@ title = sg.Text('Initiative Tracker')
 initiative_table = sg.Table([],["Id","Name","Initiative"],num_rows=1,expand_x=True,expand_y=True, justification="center", enable_click_events=True)
 add_button = sg.Button("Add",expand_x=True)
 change_button = sg.Button('Change',expand_x=True)
+check_button = sg.Button("Check" ,expand_x=True)
 delete_button = sg.Button('Delete',expand_x=True)
 
 entry_stats = [] 
@@ -51,12 +52,31 @@ def delete_entry(confirm):
 
     initiative_table.update(current)
 
+def display_info_window(selection):
+    selection_stats = entry_stats[selection[0]]
+    
+    stats_table_values = []
+    for x in selection_stats["Stats"]:
+        stats_table_values.append([x.replace("'",""),selection_stats["Stats"][x]])
+
+    stats_table = sg.Table(stats_table_values,["Name","Value"],num_rows=10,expand_x=True,expand_y=True, justification="center", enable_click_events=True)
+
+    skills_table_values = []
+    for x in selection_stats["Skills"]:
+        skills_table_values.append([x.replace("'",""),selection_stats["Skills"][x]])
+
+    skills_table = sg.Table(skills_table_values,["Name","Value"],num_rows=10,expand_x=True,expand_y=True, justification="center", enable_click_events=True)
+
+    info_window = sg.Window("Stats",[[sg.Text("{} Stats".format(selection_stats["Name"]))],[stats_table,skills_table]], size=(500,500))
+    info_window.read()
+
+    
 
 layout = [  [title],
             [initiative_table],
-            [add_button,delete_button,change_button] ]
+            [add_button,delete_button,check_button,change_button] ]
 
-window = sg.Window('Window Title', layout=layout, size=(1000,800) )
+window = sg.Window('Initiative Tracker', layout=layout, size=(1000,800) )
 
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
@@ -82,6 +102,12 @@ while True:
             change_initative(sg.popup_get_text("Please type the roll"))
         except Exception as e:
             print("error: ", e)
+    
+    if event == "Check":
+        try:
+            display_info_window(initiative_table.SelectedRows)
+        except Exception as e:
+            print("Error: ",e)
         
 
 window.close()
