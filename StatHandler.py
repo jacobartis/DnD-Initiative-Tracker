@@ -1,5 +1,7 @@
 import PyPDF2
 
+def get_name(sheet_contents):
+    return sheet_contents[0]
 
 def get_stats(sheet_contents):
     catagories = ["Str","Dex","Con","Int","Wis","Cha"]
@@ -45,7 +47,9 @@ def get_senses(sheet_contents):
     return sheet_contents[85]
 
 def get_initiative(sheet_contents):
-    return sheet_contents[86]
+    if "-" in str(sheet_contents[86]):
+        return -int(sheet_contents[86][1:])
+    return int(sheet_contents[86][1:])
 
 def get_ac(sheet_contents):
     return sheet_contents[87]
@@ -55,7 +59,7 @@ def get_speed(sheet_contents):
 
 #Converts a given pdf file to dictionary of the characters stats
 def get_char_from_pdf(pdf):
-    catagories = ["Stats", "Saving Throws", "Skills", "Pasive Stats","Senses","Initiative","AC","Speed"]
+    catagories = ["Name","Stats", "Saving Throws", "Skills", "Pasive Stats","Senses","Initiative","AC","Speed"]
     stats = []
     try:
         pdf = open(pdf,"rb")
@@ -67,6 +71,7 @@ def get_char_from_pdf(pdf):
                 obj = annot.get_object()
                 if "/V" in obj:
                     sheet_info.append(obj["/V"])
+        stats.append(get_name(sheet_info))
         stats.append(get_stats(sheet_info))
         stats.append(get_saving_throws(sheet_info))
         stats.append(get_skills(sheet_info))
