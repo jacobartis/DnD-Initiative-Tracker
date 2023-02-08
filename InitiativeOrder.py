@@ -4,6 +4,9 @@ import PySimpleGUI as sg
 sg.theme('DarkAmber') 
 
 title = sg.Text('Initiative Tracker')
+current_initiative_display = sg.Text("Current initiative: {}".format(0))
+next_initiative = sg.Button("Next Initiative")
+prev_initiative = sg.Button("Previous Initiative")
 initiative_table = sg.Table([],["Id","Name","Initiative"],num_rows=1,expand_x=True,expand_y=True, justification="center", enable_click_events=True)
 add_button = sg.Button("Add",expand_x=True)
 change_button = sg.Button('Change',expand_x=True)
@@ -11,6 +14,13 @@ check_button = sg.Button("Check" ,expand_x=True)
 delete_button = sg.Button('Delete',expand_x=True)
 
 entry_stats = [] 
+avalible_initiatives = []
+current_initiative = 0
+
+def update_initiatives():
+    avalible_initiatives.clear()
+    for x in initiative_table.get():
+        avalible_initiatives.append(x[2])
 
 #Adds a charater to the table
 def add_char_sheet(file_path):
@@ -25,19 +35,26 @@ def add_char_sheet(file_path):
     initiative_table.update(current)
 
     entry_stats.insert(id,StatHandler.get_char_from_pdf(file_path))
+    update_initiatives()
 
 def get_initiative(e):
     return e[2]
 
 #Changes the initative of the selected entry and sorts the list
-def change_initative(roll):
+def change_initiative(raw):
     selection = initiative_table.SelectedRows[0]
     current = initiative_table.get()
     selection_id = current[selection][0]
 
-    current[selection][2]= int(roll) + entry_stats[selection_id]["Initiative"]
+    if raw == "Yes":
+        roll = int(sg.popup_get_text("Please type the roll")) + entry_stats[selection_id]["Initiative"]
+    else:
+        roll = int(sg.popup_get_text("Please enter the initative"))
+
+    current[selection][2]= roll
     current.sort(reverse=True,key=get_initiative)
     initiative_table.update(current)
+    update_initiatives()
 
 #Removes entries from both initative table and entry stats
 def delete_entry(confirm):
@@ -51,7 +68,9 @@ def delete_entry(confirm):
     entry_stats.pop(selection_id)
 
     initiative_table.update(current)
+    update_initiatives()
 
+#Displays the stats of the selected unit
 def display_info_window(selection):
     selection_stats = entry_stats[selection[0]]
     
@@ -80,7 +99,7 @@ def display_info_window(selection):
 
     
 
-layout = [  [title],
+layout = [  [title,current_initiative_display,next_initiative,prev_initiative],
             [initiative_table],
             [add_button,delete_button,check_button,change_button] ]
 
@@ -107,7 +126,7 @@ while True:
 
     if event == "Change":
         try:
-            change_initative(sg.popup_get_text("Please type the roll"))
+            change_initiative(sg.popup_yes_no("Would you like to add initiative bonus?"))
         except Exception as e:
             print("error: ", e)
     
@@ -116,6 +135,25 @@ while True:
             display_info_window(initiative_table.SelectedRows)
         except Exception as e:
             print("Error: ",e)
+    
+    if event == "Next Initiative":
+        if len(avalible_initiatives) < 1:
+            continue
+        current_initiative = (current_initiative+1)%len(avalible_initiatives)
+        try:
+            current_initiative_display.update("Current initiative: {}".format(avalible_initiatives[current_initiative]))
+        except:
+            print("Error")
+    
+    if event == "Previous Initiative":
+        if len(avalible_initiatives) < 1:
+            continue
+        current_initiative = (current_initiative-1)%len(avalible_initiatives)
+        try:
+            current_initiative_display.update("Current initiative: {}".format(avalible_initiatives[current_initiative]))
+        except:
+            print("Error")
+
         
 
 window.close()
