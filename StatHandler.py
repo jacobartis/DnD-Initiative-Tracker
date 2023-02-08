@@ -1,4 +1,5 @@
 import PyPDF2
+from ast import literal_eval 
 
 def get_name(sheet_contents):
     return sheet_contents[0]
@@ -83,7 +84,6 @@ def get_char_from_pdf(pdf):
     except Exception as e:
         print("Something went wrong")
         print(str(e))
-    
     return dict(zip(catagories,stats))
 
 def get_from_input(stats):
@@ -107,11 +107,17 @@ def get_from_input(stats):
     return dict(zip(catagories,stats))
 
 def get_from_text(file):
-    catagories = ["Id","Name","Stats", "Saving Throws", "Skills", "Pasive Stats","Senses","Initiative","AC","Speed"]
+    catagories = ["Name","Stats", "Saving Throws", "Skills", "Pasive Stats","Senses","Initiative","AC","Speed"]
     try:
         creatures = []
+        
         with open(file,"r") as f:
-            creatures.append(dict(zip(catagories,f.readline().split(","))))
+            while f:
+                next = f.readline()
+                if next == "":
+                    break
+                creatures.append(dict(zip(catagories,literal_eval(next))))
+        
         return creatures
     except Exception as e:
         print("Error: ",e)
