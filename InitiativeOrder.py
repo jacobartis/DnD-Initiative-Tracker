@@ -3,7 +3,7 @@ import PySimpleGUI as sg
 
 sg.theme('DarkAmber') 
 
-title = sg.Text('Initiative Tracker')
+title = sg.Text('Initiative Tracker',expand_x=True, justification="center")
 current_initiative_display = sg.Text("Current initiative: {}".format(0))
 next_initiative = sg.Button("Next Initiative")
 prev_initiative = sg.Button("Previous Initiative")
@@ -17,6 +17,13 @@ entry_stats = []
 avalible_initiatives = []
 current_initiative = 0
 
+def make_id():
+    id = 0
+    for x in initiative_table.get():
+        if x[0] == id:
+            id += 1
+    return id
+
 def update_initiatives():
     avalible_initiatives.clear()
     for x in initiative_table.get():
@@ -25,12 +32,8 @@ def update_initiatives():
 #Adds a charater to the table
 def add_char_sheet(file_path):
     current = initiative_table.get()
-
-    id = 0
-    for x in current:
-        if x[0] == id:
-            id += 1
     
+    id = make_id()
     current.append([id,StatHandler.get_char_from_pdf(file_path)["Name"],0])
     initiative_table.update(current)
 
@@ -39,6 +42,44 @@ def add_char_sheet(file_path):
 
 def get_initiative(e):
     return e[2]
+
+def sort_id(e):
+    return e["Id"]
+
+def add_custom():
+    load_button = sg.Button("Load")
+    delete_button = sg.Button("Delete")
+    new_button = sg.Button("New")
+
+    creatures = StatHandler.get_from_text("SavedCreatures.txt")
+    creatures.sort(key=sort_id)
+    names = []
+    for x in creatures:
+        names.append([x["Id"],x["Name"]])
+    
+    creatures_table = sg.Table([names],["Id","Name"])
+
+    custom_window = sg.Window("Stats",[[sg.Text("Custom Creatures")],[creatures_table],[load_button,delete_button,new_button]], size=(1000,250))
+
+    while True:
+        event,values = custom_window.read()
+        if event == sg.WIN_CLOSED:
+            return
+        if event == "Load":
+            selected_creature = creatures[int(creatures_table.get()[creatures_table.SelectedRows[0]][0][0])]
+            id = make_id()
+
+            init_contents = initiative_table.get()
+
+            init_contents.append([id,selected_creature["Name"]])
+            initiative_table.update(init_contents)
+            print(id)
+            entry_stats.insert(id,selected_creature)
+            update_initiatives()
+
+
+
+        print(event)
 
 #Changes the initative of the selected entry and sorts the list
 def change_initiative(raw):
@@ -99,7 +140,8 @@ def display_info_window(selection):
 
     
 
-layout = [  [title,current_initiative_display,next_initiative,prev_initiative],
+layout = [  [title],
+            [current_initiative_display,next_initiative,prev_initiative],
             [initiative_table],
             [add_button,delete_button,check_button,change_button] ]
 
@@ -113,7 +155,11 @@ while True:
 
     if event == "Add":
         try:
-            add_char_sheet(sg.popup_get_file("Please select a character sheet pdf."))
+            option = sg.popup_yes_no("Add from dnd beyond pdf?")
+            if option == "Yes":
+                add_char_sheet(sg.popup_get_file("Please select a character sheet pdf."))
+            else:
+                add_custom()
         except Exception as e:
             sg.popup_error("Something went wrong",title="Oops")
             print("error: ",e)
