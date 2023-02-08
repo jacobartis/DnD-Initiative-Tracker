@@ -85,3 +85,33 @@ def get_char_from_pdf(pdf):
         print(str(e))
     
     return dict(zip(catagories,stats))
+
+def get_from_input(stats):
+    catagories = ["Name","Stats", "Saving Throws", "Skills", "Pasive Stats","Senses","Initiative","AC","Speed"]
+    stats_array = []
+    try:
+        
+        stats.append(get_name(stats))
+        stats.append(get_stats(stats))
+        stats.append(get_saving_throws(stats))
+        stats.append(get_skills(stats))
+        stats.append(get_pasive_stats(stats))
+        stats.append(get_senses(stats))
+        stats.append(get_initiative(stats))
+        stats.append(get_ac(stats))
+        stats.append(get_speed(stats))
+    except Exception as e:
+        print("Something went wrong")
+        print(str(e))
+    
+    return dict(zip(catagories,stats))
+
+def get_from_text(file):
+    catagories = ["Id","Name","Stats", "Saving Throws", "Skills", "Pasive Stats","Senses","Initiative","AC","Speed"]
+    try:
+        creatures = []
+        with open(file,"r") as f:
+            creatures.append(dict(zip(catagories,f.readline().split(","))))
+        return creatures
+    except Exception as e:
+        print("Error: ",e)
