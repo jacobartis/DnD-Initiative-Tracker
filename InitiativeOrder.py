@@ -43,6 +43,60 @@ def add_char_sheet(file_path):
 def get_initiative(e):
     return e[2]
 
+def create_menu():
+    name_text = sg.Text("Name:")
+    name_input = sg.Input()
+
+    str_text = sg.Text("Str: ",expand_x=True)
+    str_input = sg.Spin([-5,-4,-3,-2,-1,0,1,2,3,4,5],initial_value=0,expand_x=True)
+    dex_text = sg.Text("Dex: ",expand_x=True)
+    dex_input = sg.Spin([-5,-4,-3,-2,-1,0,1,2,3,4,5],initial_value=0,expand_x=True)
+    con_text = sg.Text("Con: ",expand_x=True)
+    con_input = sg.Spin([-5,-4,-3,-2,-1,0,1,2,3,4,5],initial_value=0,expand_x=True)
+    int_text = sg.Text("Int: ",expand_x=True)
+    int_input = sg.Spin([-5,-4,-3,-2,-1,0,1,2,3,4,5],initial_value=0,expand_x=True)
+    wis_text = sg.Text("Wis: ",expand_x=True)
+    wis_input = sg.Spin([-5,-4,-3,-2,-1,0,1,2,3,4,5],initial_value=0,expand_x=True)
+    cha_text = sg.Text("Cha: ",expand_x=True)
+    cha_input = sg.Spin([-5,-4,-3,-2,-1,0,1,2,3,4,5],initial_value=0,expand_x=True)
+    stats_frame = sg.Frame("Stats",[[str_text,str_input],[dex_text,dex_input],[con_text,con_input],[int_text,int_input],[wis_text,wis_input],[cha_text,cha_input]])
+
+    ac_text = sg.Text("AC: ",expand_x=True)
+    ac_input = sg.Spin(list(range(101)),initial_value=0,expand_x=True)
+
+    initiative_text = sg.Text("Initiative bonus: ",expand_x=True)
+    initiative_input = sg.Spin(list(range(-100,101)),initial_value=0,expand_x=True)
+
+    other_stats_frame = sg.Frame("Other Stats",[[ac_text,ac_input],[initiative_text,initiative_input]])
+
+    pasive_perception_text = sg.Text("Pas Perception: ",expand_x=True)
+    pasive_perception_input = sg.Spin(list(range(31)),initial_value=10,expand_x=True)
+    pasive_insight_text = sg.Text("Pas Insight: ",expand_x=True)
+    pasive_insight_input = sg.Spin(list(range(31)),initial_value=10,expand_x=True)
+    pasive_investigation_text = sg.Text("Pas Investigation: ",expand_x=True)
+    pasive_investigation_input = sg.Spin(list(range(31)),initial_value=10,expand_x=True)
+    pasive_stats_frame = sg.Frame("Pasive Stats",[[pasive_perception_text,pasive_perception_input],[pasive_insight_text,pasive_insight_input],[pasive_investigation_text,pasive_investigation_input]])
+
+    create_button = sg.Button("Create")
+
+    create_window = sg.Window("Stats",[[sg.Text("Create Creature",justification="center")],[name_text,name_input],[stats_frame,other_stats_frame,pasive_stats_frame],[create_button]], size=(440,300))
+
+    while True:
+        event,values = create_window.read()
+        if event == sg.WIN_CLOSED:
+            break
+
+        if event == "Create":
+            stats = {"Str":values[1],"Dex":values[2],"Con":values[3],"Int":values[2],"Wis":values[3],"Cha":values[4]}
+            pas_stats = {"Pasive Perception":values[9],"Pasive Insight":values[10],"Pasive Investigation":values[11]}
+            StatHandler.add_to_file("SavedCreatures.txt",[values[0],stats,[],[],pas_stats,"",values[8],values[7],""])
+            break
+    
+    create_window.close()
+    
+
+
+
 def add_custom():
     #Creates a new menu to handle addin custom creatures
     load_button = sg.Button("Load")
@@ -91,6 +145,16 @@ def add_custom():
             creatures_table.update(creatures_table_data)
             creatures.pop(selected_id)
 
+        if event == "New":
+            create_menu()
+            creatures = StatHandler.get_from_text("SavedCreatures.txt")
+            #Extracts the avalible id's and names
+            names = []
+            i = 0
+            for x in creatures:
+                names.append([i,x["Name"]])
+                i +=1
+            creatures_table.update(names)
 
         print(event)
 
@@ -99,9 +163,8 @@ def change_initiative(raw):
     selection = initiative_table.SelectedRows[0]
     current = initiative_table.get()
     selection_id = current[selection][0]
-
     if raw == "Yes":
-        roll = int(sg.popup_get_text("Please type the roll")) + entry_stats[selection_id]["Initiative"]
+        roll = int(sg.popup_get_text("Please type the roll")) + int(entry_stats[selection_id]["Initiative"])
     else:
         roll = int(sg.popup_get_text("Please enter the initative"))
 
