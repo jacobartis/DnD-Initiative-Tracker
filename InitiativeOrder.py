@@ -81,6 +81,15 @@ def add_custom():
             entry_stats.insert(id,selected_creature)
             update_initiatives()
 
+        if event == "Delete":
+            selected_id = int(creatures_table.get()[creatures_table.SelectedRows[0]][0])
+            StatHandler.delete_from_file("SavedCreatures.txt",[selected_id])
+
+            creatures_table_data = creatures_table.get()
+
+            creatures_table_data.pop(selected_id)
+            creatures_table.update(creatures_table_data)
+            creatures.pop(selected_id)
 
 
         print(event)
