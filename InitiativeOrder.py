@@ -43,35 +43,39 @@ def add_char_sheet(file_path):
 def get_initiative(e):
     return e[2]
 
-def sort_id(e):
-    return e["Id"]
-
 def add_custom():
+    #Creates a new menu to handle addin custom creatures
     load_button = sg.Button("Load")
     delete_button = sg.Button("Delete")
     new_button = sg.Button("New")
 
+    #Gets avalible creatures from the SavedCreatures text file and sorts by assending id
     creatures = StatHandler.get_from_text("SavedCreatures.txt")
-    creatures.sort(key=sort_id)
+    #Extracts the avalible id's and names
     names = []
+    i = 0
     for x in creatures:
-        names.append([x["Id"],x["Name"]])
-    
-    creatures_table = sg.Table([names],["Id","Name"])
+        names.append([i,x["Name"]])
+        i +=1
 
+    #Creates a table of id's and names
+    creatures_table = sg.Table(names,["Id","Name"])
+
+    #Creates and opens the custom creatures window
     custom_window = sg.Window("Stats",[[sg.Text("Custom Creatures")],[creatures_table],[load_button,delete_button,new_button]], size=(1000,250))
 
+    #Handles the avalible inputs
     while True:
         event,values = custom_window.read()
         if event == sg.WIN_CLOSED:
             return
         if event == "Load":
-            selected_creature = creatures[int(creatures_table.get()[creatures_table.SelectedRows[0]][0][0])]
+            selected_creature = creatures[int(creatures_table.get()[creatures_table.SelectedRows[0]][0])]
             id = make_id()
 
             init_contents = initiative_table.get()
 
-            init_contents.append([id,selected_creature["Name"]])
+            init_contents.append([id,selected_creature["Name"],0])
             initiative_table.update(init_contents)
             print(id)
             entry_stats.insert(id,selected_creature)
