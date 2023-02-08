@@ -91,8 +91,8 @@ def add_to_file(file,stats):
     try:
         print(dict(zip(catagories,stats)))
         with open(file,"a") as f:
-            f.write("\n")
             f.write(str(stats))
+            f.write("\n")
     except Exception as e:
         print("Something went wrong")
         print(str(e))

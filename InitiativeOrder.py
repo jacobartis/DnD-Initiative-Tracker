@@ -99,9 +99,9 @@ def create_menu():
 
 def add_custom():
     #Creates a new menu to handle addin custom creatures
-    load_button = sg.Button("Load")
-    delete_button = sg.Button("Delete")
-    new_button = sg.Button("New")
+    load_button = sg.Button("Load",expand_x=True)
+    delete_button = sg.Button("Delete",expand_x=True)
+    new_button = sg.Button("New",expand_x=True)
 
     #Gets avalible creatures from the SavedCreatures text file and sorts by assending id
     creatures = StatHandler.get_from_text("SavedCreatures.txt")
@@ -113,10 +113,10 @@ def add_custom():
         i +=1
 
     #Creates a table of id's and names
-    creatures_table = sg.Table(names,["Id","Name"])
+    creatures_table = sg.Table(names,["Id","Name"],expand_x=True)
 
     #Creates and opens the custom creatures window
-    custom_window = sg.Window("Stats",[[sg.Text("Custom Creatures")],[creatures_table],[load_button,delete_button,new_button]], size=(1000,250))
+    custom_window = sg.Window("Stats",[[sg.Text("Custom Creatures")],[creatures_table],[load_button,delete_button,new_button]], size=(250,250))
 
     #Handles the avalible inputs
     while True:
