@@ -1,0 +1,3 @@
+['test', {'Str': 0, 'Dex': 0, 'Con': 0, 'Int': 0, 'Wis': 0, 'Cha': 0}, [], [], {'Pasive Perception': 10, 'Pasive Insight': 10, 'Pasive Investigation': 10}, '', 0, 0, '']
+['testb', {'Str': 0, 'Dex': 0, 'Con': 0, 'Int': 0, 'Wis': 0, 'Cha': 0}, [], [], {'Pasive Perception': 10, 'Pasive Insight': 10, 'Pasive Investigation': 10}, '', 0, 0, '']
+['testc', {'Str': 0, 'Dex': 0, 'Con': 0, 'Int': 0, 'Wis': 0, 'Cha': 0}, [], [], {'Pasive Perception': 10, 'Pasive Insight': 10, 'Pasive Investigation': 10}, '', 0, 0, '']

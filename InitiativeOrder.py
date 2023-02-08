@@ -189,7 +189,8 @@ def delete_entry(confirm):
 
 #Displays the stats of the selected unit
 def display_info_window(selection):
-    selection_stats = entry_stats[selection[0]]
+    print(initiative_table.get()[selection][0])
+    selection_stats = entry_stats[initiative_table.get()[selection][0]]
     
     stats_table_values = []
     for x in selection_stats["Stats"]:
@@ -254,7 +255,7 @@ while True:
     
     if event == "Check":
         try:
-            display_info_window(initiative_table.SelectedRows)
+            display_info_window(initiative_table.SelectedRows[0])
         except Exception as e:
             print("Error: ",e)
     
