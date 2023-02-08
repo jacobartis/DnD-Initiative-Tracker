@@ -110,7 +110,7 @@ def get_from_text(file):
     catagories = ["Name","Stats", "Saving Throws", "Skills", "Pasive Stats","Senses","Initiative","AC","Speed"]
     try:
         creatures = []
-        
+
         with open(file,"r") as f:
             while f:
                 next = f.readline()
@@ -121,3 +121,12 @@ def get_from_text(file):
         return creatures
     except Exception as e:
         print("Error: ",e)
+
+def delete_from_file(file,pos):
+    with open(file,"r") as f:
+        lines = f.readlines()
+        with open(file,"w") as f:
+            for i in range(len(lines)):
+                if i in pos:
+                    continue
+                f.write(lines[i])
