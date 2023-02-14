@@ -8,6 +8,14 @@ current_initiative_display = sg.Text("Current initiative: {}".format(0))
 next_initiative = sg.Button("Next Initiative")
 prev_initiative = sg.Button("Previous Initiative")
 initiative_table = sg.Table([],["Id","Name","Initiative"],num_rows=1,expand_x=True,expand_y=True, justification="center", enable_click_events=True)
+
+selected_info_layout = [[sg.Text("Name")],
+                        [sg.Text("HP: "),sg.Input(size=(3,2)),sg.Text("AC: "),sg.Text("0")],
+                        [sg.Text("Init: "),sg.Text("10"),sg.Text("Concen: "),sg.Checkbox("")],
+                        [sg.Text("P. Per: "),sg.Text("2"), sg.Button("Stats")]]
+
+selected_info = sg.Frame("Info",selected_info_layout)
+
 add_button = sg.Button("Add",expand_x=True)
 change_button = sg.Button('Change',expand_x=True)
 check_button = sg.Button("Check" ,expand_x=True)
@@ -48,17 +56,17 @@ def create_menu():
     name_input = sg.Input()
 
     str_text = sg.Text("Str: ",expand_x=True)
-    str_input = sg.Spin([-5,-4,-3,-2,-1,0,1,2,3,4,5],initial_value=0,expand_x=True)
+    str_input = sg.Spin(list(range(-5,6)),initial_value=0,expand_x=True)
     dex_text = sg.Text("Dex: ",expand_x=True)
-    dex_input = sg.Spin([-5,-4,-3,-2,-1,0,1,2,3,4,5],initial_value=0,expand_x=True)
+    dex_input = sg.Spin(list(range(-5,6)),initial_value=0,expand_x=True)
     con_text = sg.Text("Con: ",expand_x=True)
-    con_input = sg.Spin([-5,-4,-3,-2,-1,0,1,2,3,4,5],initial_value=0,expand_x=True)
+    con_input = sg.Spin(list(range(-5,6)),initial_value=0,expand_x=True)
     int_text = sg.Text("Int: ",expand_x=True)
-    int_input = sg.Spin([-5,-4,-3,-2,-1,0,1,2,3,4,5],initial_value=0,expand_x=True)
+    int_input = sg.Spin(list(range(-5,6)),initial_value=0,expand_x=True)
     wis_text = sg.Text("Wis: ",expand_x=True)
-    wis_input = sg.Spin([-5,-4,-3,-2,-1,0,1,2,3,4,5],initial_value=0,expand_x=True)
+    wis_input = sg.Spin(list(range(-5,6)),initial_value=0,expand_x=True)
     cha_text = sg.Text("Cha: ",expand_x=True)
-    cha_input = sg.Spin([-5,-4,-3,-2,-1,0,1,2,3,4,5],initial_value=0,expand_x=True)
+    cha_input = sg.Spin(list(range(-5,6)),initial_value=0,expand_x=True)
     stats_frame = sg.Frame("Stats",[[str_text,str_input],[dex_text,dex_input],[con_text,con_input],[int_text,int_input],[wis_text,wis_input],[cha_text,cha_input]])
 
     ac_text = sg.Text("AC: ",expand_x=True)
@@ -93,9 +101,6 @@ def create_menu():
             break
     
     create_window.close()
-    
-
-
 
 def add_custom():
     #Creates a new menu to handle addin custom creatures
@@ -188,7 +193,7 @@ def delete_entry(confirm):
     update_initiatives()
 
 #Displays the stats of the selected unit
-def display_info_window(selection):
+def display_stats_window(selection):
     print(initiative_table.get()[selection][0])
     selection_stats = entry_stats[initiative_table.get()[selection][0]]
     
@@ -215,12 +220,14 @@ def display_info_window(selection):
     info_window = sg.Window("Stats",[[sg.Text("{} Stats".format(selection_stats["Name"]))],[stats_table,skills_table,pasives_table_values,other_stats]], size=(1000,250))
     info_window.read()
 
-    
+#Handles loading the info of the selected id into the info section
+def load_info(id):
+    print(id)
 
 layout = [  [title],
             [current_initiative_display,next_initiative,prev_initiative],
-            [initiative_table],
-            [add_button,delete_button,check_button,change_button] ]
+            [initiative_table,selected_info],
+            [add_button,delete_button] ]
 
 window = sg.Window('Initiative Tracker', layout=layout, size=(1000,500) )
 
@@ -253,9 +260,9 @@ while True:
         except Exception as e:
             print("error: ", e)
     
-    if event == "Check":
+    if event == "Stats":
         try:
-            display_info_window(initiative_table.SelectedRows[0])
+            display_stats_window(initiative_table.SelectedRows[0])
         except Exception as e:
             print("Error: ",e)
     
@@ -276,6 +283,13 @@ while True:
             current_initiative_display.update("Current initiative: {}".format(avalible_initiatives[current_initiative]))
         except:
             print("Error")
+    
+    #Handles selecting an entry in the initiative table
+    if "+CLICKED+" in event:
+        #If a valid entry is selected, load the info of the selected id
+        if event[2][0] != None:
+            load_info(initiative_table.get()[event[2][0]][0])
+
 
         
 
