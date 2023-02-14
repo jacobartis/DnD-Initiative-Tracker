@@ -3,25 +3,16 @@ import PySimpleGUI as sg
 
 sg.theme('DarkAmber') 
 
-title = sg.Text('Initiative Tracker',expand_x=True, justification="center")
-current_initiative_display = sg.Text("Current initiative: {}".format(0))
-next_initiative = sg.Button("Next Initiative")
-prev_initiative = sg.Button("Previous Initiative")
 initiative_table = sg.Table([],["Id","Name","Initiative"],num_rows=1,expand_x=True,expand_y=True, justification="center", enable_click_events=True)
 
-selected_info_layout = [[sg.Text("Name")],
-                        [sg.Text("HP: "),sg.Input(size=(3,2)),sg.Text("AC: "),sg.Text("0")],
-                        [sg.Text("Init: "),sg.Text("10"),sg.Text("Concen: "),sg.Checkbox("")],
-                        [sg.Text("P. Per: "),sg.Text("2"), sg.Button("Stats")]]
+selected_info_layout = [[sg.Text("Name:"),sg.Text("Name",key="Name_Info")],
+                        [sg.Text("HP: "),sg.Spin(list(range(0,1001)),key="HP_Info",size=(4,3),enable_events=True),sg.Text("AC: "),sg.Spin(list(range(0,101)),key="AC_Info",size=(4,3),enable_events=True)],
+                        [sg.Text("Initiative: "),sg.Spin(list(range(-10,101)),key="Initiative_Info",size=(4,3),enable_events=True),sg.Text("Concen: "),sg.Checkbox("",key="Concentration_Info",enable_events=True)],
+                        [sg.Text("P. Per: "),sg.Text("2",key="Pas_Perception_Info"), sg.Button("Stats")]]
 
-selected_info = sg.Frame("Info",selected_info_layout)
+entry_base_stats = [] 
+entry_active_stats = []
 
-add_button = sg.Button("Add",expand_x=True)
-change_button = sg.Button('Change',expand_x=True)
-check_button = sg.Button("Check" ,expand_x=True)
-delete_button = sg.Button('Delete',expand_x=True)
-
-entry_stats = [] 
 avalible_initiatives = []
 current_initiative = 0
 
@@ -34,23 +25,43 @@ def make_id():
 
 def update_initiatives():
     avalible_initiatives.clear()
+    
     for x in initiative_table.get():
         avalible_initiatives.append(x[2])
+
+def get_initiative_table_selection():
+    if initiative_table.SelectedRows:
+        return initiative_table.get()[initiative_table.SelectedRows[0]]
+    return None
 
 #Adds a charater to the table
 def add_char_sheet(file_path):
     current = initiative_table.get()
     
     id = make_id()
-    current.append([id,StatHandler.get_char_from_pdf(file_path)["Name"],0])
+    sheet_stats = StatHandler.get_char_from_pdf(file_path)
+
+    #Adds stats to base stats and creates an entry in active stats with important changeable stats
+    entry_base_stats.insert(id,sheet_stats)
+    entry_active_stats.insert(id,{"Name":sheet_stats["Name"],
+                                  "HP":sheet_stats["HP"],
+                                  "AC":sheet_stats["AC"],
+                                  "Pasive Perception":sheet_stats["Pasive Stats"]["Pasive Perception"],
+                                  "Concentration":False,
+                                  "Initiative":0})
+    
+    #Adds displays the character in the table
+    current.append([id,sheet_stats["Name"],0])
     initiative_table.update(current)
 
-    entry_stats.insert(id,StatHandler.get_char_from_pdf(file_path))
+    #Adds
+
     update_initiatives()
 
 def get_initiative(e):
     return e[2]
 
+#!!! DEFUNCT NEEDS TO INCLUDE HEALTH AND ORDER HAS CHANGED !!!
 def create_menu():
     name_text = sg.Text("Name:")
     name_input = sg.Input()
@@ -222,12 +233,30 @@ def display_stats_window(selection):
 
 #Handles loading the info of the selected id into the info section
 def load_info(id):
-    print(id)
+    info = entry_active_stats[id]
+    window["Name_Info"].update(info["Name"])
+    window["HP_Info"].update(info["HP"])
+    window["AC_Info"].update(info["AC"])
+    window["Initiative_Info"].update(info["Initiative"])
+    window["Concentration_Info"].update(info["Concentration"])
+    window["Pas_Perception_Info"].update(info["Pasive Perception"])
 
-layout = [  [title],
-            [current_initiative_display,next_initiative,prev_initiative],
-            [initiative_table,selected_info],
-            [add_button,delete_button] ]
+#Handles updating active stats of characters
+def update_active_stats(id,values):
+    #Updates the characters entry in active stats
+    entry_active_stats[id]["HP"] = values["HP_Info"]
+    entry_active_stats[id]["AC"] = values["AC_Info"]
+    entry_active_stats[id]["Concentration"] = values["Concentration_Info"]
+    entry_active_stats[id]["Initiative"] = values["Initiative_Info"]
+    #Updates the initiative value in the list
+    entries = initiative_table.get()
+    entries[initiative_table.SelectedRows[0]][2] = entry_active_stats[id]["Initiative"]
+    initiative_table.update(entries)
+
+layout = [  [sg.Text('Initiative Tracker',expand_x=True, justification="center")],
+            [sg.Text("Current initiative: {}".format(0),key="Curent_Initiative"),sg.Button("Next Initiative"),sg.Button("Previous Initiative")],
+            [initiative_table,sg.Frame("Info",selected_info_layout)],
+            [sg.Button("Add",expand_x=True),sg.Button('Delete',expand_x=True)] ]
 
 window = sg.Window('Initiative Tracker', layout=layout, size=(1000,500) )
 
@@ -250,7 +279,7 @@ while True:
     
     if event == "Delete":
         try:
-            delete_entry(sg.popup_yes_no("Are you sure you want to delete {}?".format(initiative_table.get()[initiative_table.SelectedRows[0]][1])))
+            delete_entry(sg.popup_yes_no("Are you sure you want to delete {}?".format(get_initiative_table_selection()[1])))
         except Exception as e:
             print("Error : ", e)
 
@@ -271,7 +300,7 @@ while True:
             continue
         current_initiative = (current_initiative+1)%len(avalible_initiatives)
         try:
-            current_initiative_display.update("Current initiative: {}".format(avalible_initiatives[current_initiative]))
+            window["Curent_Initiative"].update("Current initiative: {}".format(avalible_initiatives[current_initiative]))
         except:
             print("Error")
     
@@ -280,7 +309,7 @@ while True:
             continue
         current_initiative = (current_initiative-1)%len(avalible_initiatives)
         try:
-            current_initiative_display.update("Current initiative: {}".format(avalible_initiatives[current_initiative]))
+            window["Curent_Initiative"].update("Current initiative: {}".format(avalible_initiatives[current_initiative]))
         except:
             print("Error")
     
@@ -289,6 +318,10 @@ while True:
         #If a valid entry is selected, load the info of the selected id
         if event[2][0] != None:
             load_info(initiative_table.get()[event[2][0]][0])
+    
+    if "Info" in event:
+        if initiative_table.SelectedRows:
+            update_active_stats(get_initiative_table_selection()[0],values)
 
 
         
