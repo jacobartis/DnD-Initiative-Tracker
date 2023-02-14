@@ -55,12 +55,15 @@ def get_initiative(sheet_contents):
 def get_ac(sheet_contents):
     return sheet_contents[87]
 
+def get_hp(sheet_contents):
+    return sheet_contents[90]
+
 def get_speed(sheet_contents):
     return sheet_contents[89]
 
 #Converts a given pdf file to dictionary of the characters stats
 def get_char_from_pdf(pdf):
-    catagories = ["Name","Stats", "Saving Throws", "Skills", "Pasive Stats","Senses","Initiative","AC","Speed"]
+    catagories = ["Name","HP","AC","Stats", "Saving Throws", "Skills", "Pasive Stats","Senses","Initiative","AC","Speed"]
     stats = []
     try:
         pdf = open(pdf,"rb")
@@ -73,6 +76,8 @@ def get_char_from_pdf(pdf):
                 if "/V" in obj:
                     sheet_info.append(obj["/V"])
         stats.append(get_name(sheet_info))
+        stats.append(get_hp(sheet_info))
+        stats.append(get_ac(sheet_info))
         stats.append(get_stats(sheet_info))
         stats.append(get_saving_throws(sheet_info))
         stats.append(get_skills(sheet_info))
@@ -87,7 +92,7 @@ def get_char_from_pdf(pdf):
     return dict(zip(catagories,stats))
 
 def add_to_file(file,stats):
-    catagories = ["Name","Stats", "Saving Throws", "Skills", "Pasive Stats","Senses","Initiative","AC","Speed"]
+    catagories = ["Name","HP","AC","Stats", "Saving Throws", "Skills", "Pasive Stats","Senses","Initiative","AC","Speed"]
     try:
         print(dict(zip(catagories,stats)))
         with open(file,"a") as f:
@@ -100,7 +105,7 @@ def add_to_file(file,stats):
     return dict(zip(catagories,stats))
 
 def get_from_text(file):
-    catagories = ["Name","Stats", "Saving Throws", "Skills", "Pasive Stats","Senses","Initiative","AC","Speed"]
+    catagories = ["Name","HP","AC","Stats", "Saving Throws", "Skills", "Pasive Stats","Senses","Initiative","AC","Speed"]
     try:
         creatures = []
 
