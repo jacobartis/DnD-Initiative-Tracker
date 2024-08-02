@@ -22,7 +22,6 @@ class intiative_tracker:
     CREATURE:int = 1
 
     _next_id = 0
-    _initiative: int = 0
     _creatures: dict = {}
 
     #Stores upcomming creatures
@@ -30,20 +29,24 @@ class intiative_tracker:
     #Stores prev creatures
     _initiative_stack_prev:list[initiative_creature] = []
 
+    #Returns creature dict
     def get_creatures(self):
         return self._creatures
 
+    #Returns the current creature
+    def get_active_creature(self):
+        if not self._initiative_stack: return
+        return self._initiative_stack[0][self.CREATURE]
+
+    #Return initiative of current creature
     def get_initiative(self):
-        return self._initiative
+        if not self.get_active_creature(): return
+        return self.get_active_creature().get_initiative()
 
     def _get_next_id(self):
         id = self._next_id
         self._next_id += 1
         return id 
-
-    #Updates initiative to current turn
-    def _update_initiative(self):
-        self._initiative = self._initiative_stack[0][self.CREATURE].get_initiative()
 
     #Adds a new creature to the list
     def add_creature(self,initia:int):
@@ -61,17 +64,14 @@ class intiative_tracker:
 
     def next_turn(self):
         self._generate_stack()
-        self._update_initiative()
     
     def next_initiative(self):
         #Resets if empty or last creature finished their turn
         if len(self._initiative_stack)<= 1:
             self.next_turn()
+            return
         #Adds current latest creature to the front of the prev stack
         self._initiative_stack_prev.insert(0,self._initiative_stack.pop(0))
-
-        self._update_initiative()
-        print(self._initiative)
 
     def prev_initiative(self):
         #Returns if at start of initiative
@@ -81,10 +81,6 @@ class intiative_tracker:
         #Readds top of prev stack to current stack
         self._initiative_stack.insert(0,self._initiative_stack_prev.pop(0))
 
-        self._update_initiative()
-
-        print(self._initiative)
-
 
 def main():
     tracker = intiative_tracker()
@@ -92,13 +88,6 @@ def main():
         tracker.add_creature(rnd.randint(0,20))
     tracker.next_turn()
 
-    tracker.next_initiative()
-    tracker.next_initiative()
-    tracker.next_initiative()
-    tracker.prev_initiative()
-    tracker.next_initiative()
-    tracker.next_initiative()
-    tracker.next_initiative()
 
 if __name__ == "__main__":
     main()
