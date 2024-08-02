@@ -100,7 +100,7 @@ class tracker:
 
 
 def main():
-    tracker = intiative_tracker()
+    tracker = tracker()
     for x in range(5):
         tracker.add_creature(rnd.randint(0,20))
 
