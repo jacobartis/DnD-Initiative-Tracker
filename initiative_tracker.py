@@ -17,7 +17,7 @@ class initiative_creature:
     def get_initiative(self) -> int:
         return self._initiative
 
-class intiative_tracker:
+class tracker:
     CREATURE_ID:int = 0
     CREATURE:int = 1
 
@@ -86,8 +86,6 @@ def main():
     tracker = intiative_tracker()
     for x in range(5):
         tracker.add_creature(rnd.randint(0,20))
-    tracker.next_turn()
-
 
 if __name__ == "__main__":
     main()
