@@ -1,12 +1,10 @@
 import random as rnd
+import warnings
 
 class initiative_creature:
     _id:int = 0
     _name:str = ""
     _initiative:int = 0
-    def __init__(self,id:int,initia:int) -> None:
-        self._id = id
-        self._initiative = initia
     
     def get_id(self) -> int:
         return self._id
@@ -16,6 +14,25 @@ class initiative_creature:
     
     def get_initiative(self) -> int:
         return self._initiative
+
+    def set_id(self,id:int) -> None:
+        try:
+            id = int(id)
+        except:
+            UserWarning(warnings.warn('Non int input into id'))
+            return 
+        self._id = id
+
+    def set_name(self,name:str) -> None:
+        self._name = str(name)
+
+    def set_initiative(self,initiative:int) -> None:
+        try:
+            initiative = int(initiative)
+        except:
+            UserWarning(warnings.warn('Non int input into initiative'))
+            return 
+        self._initiative = initiative
 
 class tracker:
     CREATURE_ID:int = 0
@@ -49,8 +66,8 @@ class tracker:
         return id 
 
     #Adds a new creature to the list
-    def add_creature(self,initia:int):
-        new_creature = initiative_creature(self._get_next_id(),initia)
+    def add_creature(self,creature:initiative_creature):
+        new_creature = creature.set_id(self._get_next_id())
         self._creatures[new_creature.get_id()] = new_creature
     
     #Generates the initiative stack using the current creature list
